@@ -1,0 +1,52 @@
+[
+  {
+    "id": 1,
+    "category": "factual",
+    "response": "The capital of Australia is Canberra, and it was chosen because it was located in the center of the country, away from the major cities of Sydney and Melbourne. This strategic location made it easier to establish a central government and administrative hub for the nation."
+  },
+  {
+    "id": 2,
+    "category": "reasoning",
+    "response": "Let's denote the cost of the ball as \\( x \\) dollars. According to the problem, the bat costs $1.00 more than the ball, so the cost of the bat is \\( x + 1.00 \\) dollars.\n\nThe total cost of the bat and the ball is $1.10, so we can write the equation:\n\\[ x + (x + 1.00) = 1.10 \\]\n\nSimplifying the left side of the equation, we get:\n\\[ 2x + 1.00 = 1.10 \\]\n\nNext, we need to isolate \\( x \\). We do this by subtracting 1.00 from both sides of the equation:\n\\[ 2x = 0.10 \\]\n\nNow, we solve for \\( x \\) by dividing both sides by 2:\n\\[ x = 0.05 \\]\n\nSo, the cost of the ball is \\( 0.05 \\) dollars, or 5 cents.\n\nTo verify, we calculate the cost of the bat:\n\\[ x + 1.00 = 0.05 + 1.00 = 1.05 \\]\n\nThe"
+  },
+  {
+    "id": 3,
+    "category": "coding",
+    "response": "Certainly! Below is a Python function `is_palindrome(s)` that checks if a given string `s` is a palindrome, ignoring case, spaces, and punctuation. The function uses regular expressions to remove non-alphanumeric characters and then checks if the cleaned string is equal to its reverse.\n\n```python\nimport re\n\ndef is_palindrome(s):\n    # Remove non-alphanumeric characters and convert to lowercase\n    cleaned_s = re.sub(r'[^A-Za-z0-9]', '', s).lower()\n    \n    # Check if the cleaned string is equal to its reverse\n    return cleaned_s == cleaned_s[::-1]\n\n# Example calls\nprint(is_palindrome(\"A man, a plan, a canal, Panama\"))  # True\nprint(is_palindrome(\"No lemon, no melon\"))              # True\nprint(is_palindrome(\"Hello, World!\"))                   # False\n```\n\n### Explanation:\n1. **Regular Expression (`re.sub`)**:\n   - `re.sub(r'[^A-Za-z0-9]', '', s)` removes all non-alphanumeric characters from the string `s`.\n   - `lower()` converts the string to lowercase to ignore case sensitivity.\n\n2. **Palindrome Check**:\n   - The cleaned string is compared"
+  },
+  {
+    "id": 4,
+    "category": "summarisation",
+    "response": "Photosynthesis is the process by which green plants, algae, and some bacteria convert sunlight into chemical energy using carbon dioxide and water to produce glucose and release oxygen."
+  },
+  {
+    "id": 5,
+    "category": "json_output",
+    "response": "```json\n{\n  \"name\": \"Meera\",\n  \"age\": 29,\n  \"city\": \"Pune\",\n  \"skills\": [\"Python\", \"SQL\", \"Spark\"]\n}\n```"
+  },
+  {
+    "id": 6,
+    "category": "creative",
+    "response": "In the shadow of the lighthouse's light,  \nA keeper watches the waves at night.  \nHe's never seen the sea in daylight,  \nBut his heart beats with the sea's call."
+  },
+  {
+    "id": 7,
+    "category": "maths",
+    "response": "To compute \\( 17 \\times 24 \\) and then divide the result by 8, follow these steps:\n\n1. **Multiply 17 by 24:**\n   \\[\n   17 \\times 24 = 408\n   \\]\n\n2. **Divide the result by 8:**\n   \\[\n   408 \\div 8 = 51\n   \\]\n\nSo, the final answer is \\( 51 \\)."
+  },
+  {
+    "id": 8,
+    "category": "translation",
+    "response": "La réunion a été déplacée au après-midi de jeudi en raison du client qui voyage."
+  },
+  {
+    "id": 9,
+    "category": "classification",
+    "response": "1: Positive\n2: Negative\n3: Mixed"
+  },
+  {
+    "id": 10,
+    "category": "instruction_following",
+    "response": "1. Establish a consistent sleep schedule by going to bed and waking up at the same time every day.\n2. Create a relaxing bedtime routine to signal to your body that it's time to wind down.\n3. Make your sleep environment comfortable and conducive to rest, including a cool, dark, and quiet room."
+  }
+]

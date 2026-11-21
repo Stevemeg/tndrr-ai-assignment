@@ -1,0 +1,52 @@
+[
+  {
+    "id": 1,
+    "category": "factual",
+    "response": "The capital of Australia is Canberra, and it was chosen because it was located in the center of the country, making it a neutral and central location for the federal government. Canberra was designed to be a planned city, with a grid system and a mix of public and private buildings, which reflects the principles of modernist architecture. This choice was made to ensure that the capital could be easily accessed by all parts of the country, and it was intended to be a place where the government could work efficiently and effectively."
+  },
+  {
+    "id": 2,
+    "category": "reasoning",
+    "response": "Let's denote the cost of the ball as \\( x \\) dollars. According to the problem, the bat costs $1.00 more than the ball, so the cost of the bat is \\( x + 1.00 \\) dollars. The total cost of the bat and the ball together is $1.10. Therefore, we can set up the following equation:\n\n\\[ x + (x + 1.00) = 1.10 \\]\n\nFirst, we combine like terms on the left side of the equation:\n\n\\[ 2x + 1.00 = 1.10 \\]\n\nNext, we isolate the term with \\( x \\) by subtracting 1.00 from both sides of the equation:\n\n\\[ 2x = 0.10 \\]\n\nThen, we solve for \\( x \\) by dividing both sides by 2:\n\n\\[ x = 0.05 \\]\n\nSo, the cost of the ball is \\( 0.05 \\) dollars, which is 5 cents. To verify, we calculate the cost of the bat:\n\n\\[ x + 1.00 = 0.05 + 1.00 = 1.0"
+  },
+  {
+    "id": 3,
+    "category": "coding",
+    "response": "```python\nimport re\n\ndef is_palindrome(s):\n    \"\"\"\n    Check if the given string is a palindrome, ignoring case, spaces, and punctuation.\n    \n    Args:\n    s (str): The string to check.\n    \n    Returns:\n    bool: True if the string is a palindrome, False otherwise.\n    \"\"\"\n    # Remove non-alphanumeric characters and convert to lowercase\n    cleaned = re.sub(r'[^A-Za-z0-9]', '', s).lower()\n    \n    # Check if the cleaned string is equal to its reverse\n    return cleaned == cleaned[::-1]\n\n# Example calls\nprint(is_palindrome(\"A man, a plan, a canal: Panama\"))  # True\nprint(is_palindrome(\"No lemon, no melon\"))  # True\nprint(is_palindrome(\"Hello, World!\"))  # False\n```"
+  },
+  {
+    "id": 4,
+    "category": "summarisation",
+    "response": "Photosynthesis is the process by which green plants, algae, and some bacteria convert light energy into chemical energy using chlorophyll to produce glucose and release oxygen."
+  },
+  {
+    "id": 5,
+    "category": "json_output",
+    "response": "```json\n{\n  \"name\": \"Meera\",\n  \"age\": \"29\",\n  \"city\": \"Pune\",\n  \"skills\": [\"Python\", \"SQL\", \"Spark\"]\n}\n```"
+  },
+  {
+    "id": 6,
+    "category": "creative",
+    "response": "In the shadow of the lighthouse, a keeper stands,\nWhose eyes are fixed on the horizon, never far.\nThe sea, in its depths, he never sees,\nBut through the lens of the light, his heart heaves.\n\nThe waves, in the distance, he can't behold,\nBut in the light, his spirit does behold.\nThe sea, in its vastness, he can't behold,\nBut in the light, his soul does behold.\n\nThe keeper, in his watch, never sleeps,\nFor the sea, in its light, he never sleeps.\nThe keeper, in his heart, never sleeps,\nFor the sea, in its light, he never sleeps."
+  },
+  {
+    "id": 7,
+    "category": "maths",
+    "response": "Sure, let's break it down step by step:\n\n1. First, we need to compute \\( 17 \\times 24 \\).\n   \\[\n   17 \\times 24 = 408\n   \\]\n\n2. Next, we need to divide the result by 8.\n   \\[\n   408 \\div 8 = 51\n   \\]\n\nSo, the final answer is \\( 51 \\)."
+  },
+  {
+    "id": 8,
+    "category": "translation",
+    "response": "Le meeting a été reporté à la après-midi de jeudi car le client est en voyage."
+  },
+  {
+    "id": 9,
+    "category": "classification",
+    "response": "1: Positive\n2: Negative\n3: Mixed"
+  },
+  {
+    "id": 10,
+    "category": "instruction_following",
+    "response": "1. Establish a consistent sleep schedule.\n2. Create a relaxing bedtime routine.\n3. Ensure your sleep environment is comfortable and conducive to rest."
+  }
+]

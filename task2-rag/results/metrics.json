@@ -1,0 +1,26 @@
+{
+  "150_words": {
+    "recall@1": 0.6,
+    "recall@5": 0.8,
+    "hits@1": 9,
+    "hits@5": 12,
+    "n_questions": 15,
+    "n_chunks": 120
+  },
+  "500_words": {
+    "recall@1": 0.4667,
+    "recall@5": 0.6667,
+    "hits@1": 7,
+    "hits@5": 10,
+    "n_questions": 15,
+    "n_chunks": 36
+  },
+  "settings": {
+    "top_k": 5,
+    "hit_threshold": 0.6,
+    "chunk_sizes_and_overlap": {
+      "150": 22,
+      "500": 75
+    }
+  }
+}

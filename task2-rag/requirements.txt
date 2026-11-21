@@ -1,0 +1,7 @@
+# Task 2 - RAG from scratch (no LangChain / LlamaIndex)
+# pip install -r requirements.txt   (installs a CPU build of torch as a dependency)
+sentence-transformers==3.4.1
+faiss-cpu==1.13.2
+numpy==2.2.6
+pypdf==6.12.0
+requests==2.32.5

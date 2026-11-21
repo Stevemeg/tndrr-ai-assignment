@@ -1,0 +1,11 @@
+# Task 1 - LoRA fine-tuning
+#
+# generate_data.py needs only the Python standard library (Python 3.9+).
+#
+# The notebook installs these exact versions in its first cell on Kaggle.
+# torch is deliberately not listed: the notebook uses Kaggle's preinstalled CUDA build.
+transformers==4.57.1
+peft==0.17.1
+accelerate==1.10.1
+datasets==4.1.1
+bitsandbytes==0.48.1

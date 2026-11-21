@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Model weights and checkpoints
+*.safetensors
+*.bin
+*.gguf
+*.pt
+*.pth
+*.ckpt
+*.onnx
+task1-finetune/outputs/
+task1-finetune/lora_adapter/
+task1-finetune/results.zip
+
+# Re-creatable artefacts (python chunking.py && python index.py)
+task2-rag/index/
+
+# Caches and large/temporary files
+.cache/
+*.zip
+*.tar.gz
+*.log
+.DS_Store
+Thumbs.db
+.env
+
+# Personal notes (kept locally, not committed)
+my_notes.md

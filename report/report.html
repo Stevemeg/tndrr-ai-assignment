@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>tndrr AI/ML Internship – Assignment Report</title>
+<style>
+  @page { size: A4; margin: 11mm 13mm 11mm 13mm; }
+  * { box-sizing: border-box; }
+  body { font-family: Calibri, "Segoe UI", Arial, sans-serif; font-size: 10pt; line-height: 1.22; color: #111; margin: 0; }
+  h1 { font-size: 15pt; margin: 0 0 1pt; }
+  .meta { font-size: 10pt; color: #333; padding-bottom: 3pt; border-bottom: 1.2pt solid #222; margin-bottom: 2pt; }
+  .meta a { color: #1a4f9c; text-decoration: none; }
+  h2 { font-size: 12.5pt; margin: 7pt 0 2pt; padding-bottom: 1pt; border-bottom: 0.7pt solid #999; break-after: avoid; }
+  h3 { font-size: 10.5pt; margin: 5pt 0 1pt; break-after: avoid; }
+  p { margin: 0 0 2.5pt; }
+  ul { margin: 0 0 2.5pt; padding-left: 13pt; }
+  li { margin: 0 0 0.5pt; }
+  table { border-collapse: collapse; width: 100%; margin: 1.5pt 0 3pt; font-size: 10pt; break-inside: avoid; }
+  th, td { border: 0.5pt solid #b5b5b5; padding: 1pt 3.5pt; text-align: left; vertical-align: top; }
+  th { background: #ececec; font-weight: 600; }
+  td.n, th.n { text-align: right; white-space: nowrap; }
+  code { font-family: Consolas, "Courier New", monospace; font-size: 10pt; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 7pt; align-items: start; }
+  .nw { white-space: nowrap; }
+  table.fit { width: auto; min-width: 55%; }
+  .muted { color: #444; }
+</style>
+</head>
+<body>
+
+<h1>tndrr AI/ML Internship – Assignment Report</h1>
+<div class="meta">Kona Bharath Vamshidhar Reddy &nbsp;·&nbsp; Repository: <a href="https://github.com/Stevemeg/tndrr-ai-assignment">https://github.com/Stevemeg/tndrr-ai-assignment</a></div>
+
+<!-- ============================== TASK 1 ============================== -->
+<h2>Task 1 — LoRA fine-tuning: plain English → meeting/reminder JSON</h2>
+<p>Fine-tune <code>Qwen/Qwen2.5-0.5B-Instruct</code> with LoRA so that it turns a request into exactly this format: <code>action</code> (schedule_meeting / set_reminder / cancel_meeting), <code>title</code>, <code>date</code> (YYYY-MM-DD or null), <code>time</code> (24-hour HH:MM or null), <code>duration_minutes</code>, <code>attendees</code>. Synthetic data: 400 train / 60 test with a fixed reference date (Friday <span class="nw">2026-11-20</span>). 30 test examples use the 16 training templates with new values; 30 use 6 templates that never appear in training. Same prompt for both models, greedy decoding, Kaggle Tesla T4.</p>
+
+<div class="two">
+<table>
+  <tr><th>Metric (60 test examples)</th><th class="n">Base</th><th class="n">Fine-tuned</th></tr>
+  <tr><td>Valid JSON rate</td><td class="n">100.0%</td><td class="n">100.0%</td></tr>
+  <tr><td>Exact match (all 60)</td><td class="n">0.0%</td><td class="n">86.7%</td></tr>
+  <tr><td>Exact match (30 seen templates)</td><td class="n">0.0%</td><td class="n">96.7%</td></tr>
+  <tr><td>Exact match (30 unseen templates)</td><td class="n">0.0%</td><td class="n">76.7%</td></tr>
+  <tr><td>Field accuracy: action</td><td class="n">85.0%</td><td class="n">95.0%</td></tr>
+  <tr><td>Field accuracy: title</td><td class="n">5.0%</td><td class="n">96.7%</td></tr>
+  <tr><td>Field accuracy: date</td><td class="n">38.3%</td><td class="n">95.0%</td></tr>
+  <tr><td>Field accuracy: time</td><td class="n">73.3%</td><td class="n">100.0%</td></tr>
+  <tr><td>Field accuracy: duration_minutes</td><td class="n">90.0%</td><td class="n">98.3%</td></tr>
+  <tr><td>Field accuracy: attendees</td><td class="n">48.3%</td><td class="n">98.3%</td></tr>
+</table>
+<table>
+  <tr><th colspan="2">Training run</th></tr>
+  <tr><td>GPU</td><td>Tesla T4</td></tr>
+  <tr><td>Trainable parameters</td><td>2,162,688 of 496,195,456 (0.44 %)</td></tr>
+  <tr><td>Epochs / batch / lr</td><td>3 / 8 / 2e-4</td></tr>
+  <tr><td>Optimizer steps</td><td>150</td></tr>
+  <tr><td>Average training loss</td><td>0.015</td></tr>
+  <tr><td>Last logged loss</td><td>0.0007 (step 150; 0.1521 at step 5)</td></tr>
+  <tr><td>Training time</td><td>59.0 s</td></tr>
+  <tr><td>Peak GPU memory</td><td>6.96 GB allocated / 14.04 GB reserved</td></tr>
+</table>
+</div>
+<ul>
+  <li>Exact match went from 0.0% (base) to 86.7% (fine-tuned). Both models always produced valid JSON.</li>
+  <li>The fine-tuned model is better on seen templates (96.7%) than on unseen ones (76.7%): 7 of the 8 remaining errors use unseen templates. The fine-tune overfit a bit to the typical phrasing patterns.</li>
+</ul>
+
+<h3>LoRA settings and why</h3>
+<table>
+  <tr><th>Setting</th><th>Value</th><th>Reason</th></tr>
+  <tr><td>Rank <code>r</code></td><td>16</td><td>Kept the rank small because the task is pretty narrow (structured extraction), and a bigger rank would just overfit on a small dataset (400 examples).</td></tr>
+  <tr><td><code>lora_alpha</code></td><td>32</td><td>Scale alpha/r = 2.</td></tr>
+  <tr><td><code>lora_dropout</code></td><td>0.05</td><td>Light dropout on the adapter input, a little regularisation for a small dataset.</td></tr>
+  <tr><td>Target modules</td><td class="nw">q, k, v, o</td><td>The attention layers, which handle how the model reads the request and picks out the parts it needs.</td></tr>
+  <tr><td>Learning rate</td><td>2e-4</td><td>Standard for LoRA. It's higher than for full fine-tuning because only the small adapters are trained, not the whole model.</td></tr>
+  <tr><td>Epochs</td><td>3</td><td>150 steps. Enough, since the loss went down to ~0.001. More epochs would only memorise the templates further.</td></tr>
+  <tr><td>Batch size</td><td>8</td><td>8 short sequences (~200–250 tokens) fit on a T4 for a 0.5B model, so no gradient accumulation is needed. If you run out of memory, use batch 4 × accumulation 2.</td></tr>
+  <tr><td>Precision</td><td>fp16</td><td>A T4 has no bf16. The frozen base weights are fp16 (~1 GB) and the trainable LoRA weights are fp32, so the fp16 gradient scaler can update them stably.</td></tr>
+  <tr><td>Loss masking</td><td class="nw">answer only</td><td>Prompt tokens get label <code>-100</code>, which cross-entropy ignores, so the model learns to produce the JSON and the end token, not to repeat the prompt.</td></tr>
+</table>
+<p><b>Why LoRA:</b> only lightweight adapter weights (2.16M params, 0.44%) are trained, so it fits in GPU memory, trains fast (59 s) and doesn't wreck the base model's general knowledge.</p>
+
+<h3>Failure 1: "ping me" → wrong action (test-030, 043, 058)</h3>
+<div class="fail">
+<p><b>test-030:</b> "Ping me the day after tomorrow at 5:30pm so I remember to order a birthday cake." Expected <code>set_reminder</code>, predicted <code>schedule_meeting</code>; all other fields were right.</p>
+<ul>
+  <li>Happened on all 3 "ping me" test sentences, so it is systematic, not random.</li>
+  <li>In training, all 129 reminder sentences had the word "remind" or "reminder", and no sentence had "ping". The model learned "remind = reminder" as a keyword shortcut instead of the meaning; with no trigger word, it fell back to <code>schedule_meeting</code>.</li>
+  <li>Fix: more varied ways of asking for each action (e.g. paraphrase the training data with a bigger LLM).</li>
+</ul>
+</div>
+
+<h3>Failure 2: date maths (test-033, test-036)</h3>
+<div class="fail">
+<p><b>test-033</b> (seen template): "Set a reminder to send the invoice to Acme at 6:30pm in 12 days." Expected <code>2026-12-02</code>, predicted <code>2026-12-01</code>: crossing into a new month broke it. <b>test-036:</b> "on Monday" → <span class="nw">2026-11-22</span>, which is a Sunday; correct is <span class="nw">2026-11-23</span>.</p>
+<ul>
+  <li>test-033 uses a SEEN template, so this is a reasoning weakness, not a phrasing problem. The model doesn't actually calculate dates; it just predicts likely-looking date tokens.</li>
+  <li>Fix: let the model output the relative phrase ("+12 days", "next Monday") and calculate the real date in Python with <code>datetime</code>.</li>
+</ul>
+</div>
+
+<h3>Failure 3: subject-first sentence (test-052, test-034)</h3>
+<div class="fail">
+<p><b>test-052:</b> "The design review with Sneha in 4 days is not happening anymore, please remove it." Expected title "design review", attendees ["Sneha"]; predicted "the design review" (extra "the"), attendees []. <b>test-034</b> (same pattern): the same title error, and the date "today" came out null.</p>
+<ul>
+  <li>In all training sentences the meeting comes after the verb ("Cancel the X..."), so the model learned to find fields by their position after the verb. When the meeting is the subject of the sentence, that breaks.</li>
+  <li>This shows the fine-tune overfit a bit to the typical phrasing patterns. It needs more varied sentence structures in training.</li>
+</ul>
+</div>
+
+<h3>GPU memory estimate for fine-tuning a 7B model (from <code>memory_calc.md</code>)</h3>
+<p class="muted">Assumptions: P = 7.0 × 10<sup>9</sup> parameters, L = 32 layers, hidden size h = 4096, a = 32 heads with standard multi-head attention (so k_proj and v_proj are also 4096 × 4096), LoRA r = 16 on q_proj, k_proj, v_proj, o_proj, AdamW (2 extra fp32 values per trained parameter), b × s = 1 × 2048. 1 GB = 10<sup>9</sup> bytes.</p>
+<p><b>Step 1 — Bytes per parameter</b></p>
+<table>
+  <tr><th>What is stored</th><th>(a) Full FT, mixed precision</th><th>(b) LoRA, frozen 16-bit base</th><th>(c) QLoRA, 4-bit base</th></tr>
+  <tr><td>Base weights used in forward/backward</td><td>2 B (fp16/bf16)</td><td>2 B (fp16/bf16)</td><td>~0.5 B (4-bit NF4) + quantisation constants</td></tr>
+  <tr><td>fp32 master copy of weights</td><td>4 B</td><td>– (frozen)</td><td>– (frozen)</td></tr>
+  <tr><td>Gradients</td><td>2 B (fp16/bf16)</td><td>– (frozen)</td><td>– (frozen)</td></tr>
+  <tr><td>AdamW m + v (fp32)</td><td>4 + 4 = 8 B</td><td>– (frozen)</td><td>– (frozen)</td></tr>
+  <tr><td><b>Per base parameter</b></td><td><b>16 B</b></td><td><b>2 B</b></td><td><b>~0.52 B</b></td></tr>
+  <tr><td>Per trainable LoRA parameter (fp32 weight + fp32 grad + m + v)</td><td>–</td><td>4 + 4 + 8 = 16 B</td><td>16 B</td></tr>
+</table>
+<ul>
+  <li><b>Why 16 B for full FT:</b> mixed precision runs the maths in 16-bit (2 B weights, 2 B gradients). The optimizer still updates an fp32 master copy (4 B), because tiny updates would vanish in fp16. AdamW also keeps two fp32 running averages per weight (8 B).</li>
+  <li><b>Why ~0.52 B for QLoRA:</b> NF4 stores 4 bits = 0.5 B per weight. Each block of 64 weights also stores one scale; with double quantisation that costs 8/64 + 32/(64·256) ≈ 0.127 bits ≈ 0.016 B per parameter, so the total is ≈ 0.5 + 0.016 ≈ 0.516 B.</li>
+</ul>
+<p><b>Step 2 — LoRA adapters:</b> r·(d<sub>in</sub> + d<sub>out</sub>) = 16 × (4096 + 4096) = 131,072 per matrix; × 4 matrices (q, k, v, o) = 524,288 per layer; × 32 layers = 16,777,216 ≈ 16.8M trainable parameters (≈ 0.24 % of 7,000M). With AdamW: 16,777,216 × 16 B = 268,435,456 B ≈ 0.27 GB.</p>
+<p><b>Step 3 — Static memory (weights + gradients + optimizer)</b></p>
+<table>
+  <tr><th></th><th>Calculation</th><th class="n">Result</th></tr>
+  <tr><td class="nw">(a) Full FT</td><td>7.0e9 × 16 B = 14 GB fp16 weights + 14 GB fp16 gradients + 28 GB fp32 master weights + 56 GB AdamW states</td><td class="n"><b>112 GB</b></td></tr>
+  <tr><td class="nw">(b) LoRA</td><td>7.0e9 × 2 B + 0.27 GB = 14.0 + 0.27</td><td class="n"><b>≈ 14.3 GB</b></td></tr>
+  <tr><td class="nw">(c) QLoRA</td><td>7.0e9 × 0.516 B + 0.27 GB = 3.61 + 0.27</td><td class="n"><b>≈ 3.9 GB</b></td></tr>
+</table>
+<p><b>Step 4 — Activations</b> (Korthikanti et al., 2022): per layer ≈ s·b·h·(34 + 5·a·s/h) bytes. LoRA and QLoRA still need almost all of them: the gradient for an adapter in layer 1 has to flow back through all 32 frozen layers.</p>
+<ul>
+  <li>34·s·b·h = 34 × 2048 × 1 × 4096 = 285,212,672 B ≈ 0.285 GB per layer (inputs of the projections, the MLP and the norms).</li>
+  <li>5·a·s²·b = 5 × 32 × 2048² × 1 = 671,088,640 B ≈ 0.67 GB per layer (the stored s × s attention scores; FlashAttention / PyTorch SDPA do not store this matrix).</li>
+  <li>Naive attention: 32 × (0.285 + 0.671) GB ≈ 30.6 GB. FlashAttention/SDPA: 32 × 0.285 GB ≈ <b>9.1 GB</b>. FlashAttention + gradient checkpointing: store only each layer's input (2·s·b·h = 16.8 MB × 32 = 0.54 GB) + recompute one layer at a time (0.285 GB) ≈ <b>0.8 GB</b>.</li>
+</ul>
+<p><b>Step 5 — Totals</b> (FlashAttention/SDPA; add ~1 GB for logits and the CUDA context)</p>
+<table>
+  <tr><th>Method</th><th class="n">Static</th><th class="n">+ act., no ckpt (9.1 GB)</th><th class="n">+ act., ckpt (0.8 GB)</th><th>Realistic GPU</th></tr>
+  <tr><td class="nw">(a) Full FT + AdamW</td><td class="n">112 GB</td><td class="n">≈ 121 GB</td><td class="n">≈ 113 GB</td><td>several 80 GB GPUs with sharding (ZeRO/FSDP) or CPU offload</td></tr>
+  <tr><td class="nw">(b) LoRA, 16-bit base</td><td class="n">14.3 GB</td><td class="n">≈ 23.4 GB</td><td class="n">≈ 15.1 GB</td><td>24 GB GPU with checkpointing; too tight for a 16 GB T4</td></tr>
+  <tr><td class="nw">(c) QLoRA, 4-bit base</td><td class="n">3.9 GB</td><td class="n">≈ 13.0 GB</td><td class="n">≈ 4.7 GB</td><td>fits a 16 GB T4</td></tr>
+</table>
+<p>In full FT the optimizer states and master weights dominate (84 of the 112 GB); LoRA leaves mainly the 16-bit base weights; QLoRA shrinks those 4× further, after which activations dominate and gradient checkpointing controls them.</p>
+
+<!-- ============================== TASK 2 ============================== -->
+<h2>Task 2 — RAG from scratch over the NIST AI RMF 1.0</h2>
+<p>NIST AI 100-1 (48-page PDF). pypdf text per page → word chunks of 150 words (22 overlap) and 500 words (75 overlap), page numbers kept → <code>all-MiniLM-L6-v2</code> embeddings, L2-normalised → FAISS <code>IndexFlatIP</code> per chunk size → top-k chunks with [p. N] tags → <code>qwen2.5:1.5b</code> through Ollama. No LangChain or LlamaIndex. 15 questions; a question is a hit if a top-k chunk contains ≥ 0.6 of the source passage's content words.</p>
+<table class="fit">
+  <tr><th>Chunk size</th><th class="n"># chunks</th><th class="n">recall@1</th><th class="n">recall@5</th></tr>
+  <tr><td>150 words (22 overlap)</td><td class="n">120</td><td class="n">0.60 (9/15)</td><td class="n">0.80 (12/15)</td></tr>
+  <tr><td>500 words (75 overlap)</td><td class="n">36</td><td class="n">0.47 (7/15)</td><td class="n">0.67 (10/15)</td></tr>
+</table>
+<p>Misses at k = 5: questions 7, 10 and 11 with 150-word chunks; questions 2, 6, 10, 11 and 15 with 500-word chunks.</p>
+
+<h3>Why 150 beat 500</h3>
+<ul>
+  <li>The biggest reason is truncation: MiniLM caps out at 256 tokens (~190 words), so anything later in a 500-word chunk gets cut off and never embedded. That's why Q6 (bias) missed at 500, even though it was rank 1 at 150.</li>
+  <li>Big chunks also dilute the meaning by squishing multiple topics into one averaged vector.</li>
+  <li>The 60% word-overlap hit rule actually gives 500-word chunks an advantage (a bigger chunk is more likely to contain the passage), and 150 still won.</li>
+</ul>
+
+<h3>Failure 1: Q10 "When should you pull the plug on building or using an AI system?" (both sizes)</h3>
+<div class="fail">
+<p>Source: page 13, "… development and deployment should cease in a safe manner until risks can be sufficiently managed." Retrieved, 150 words: p. 6, pp. 42–43, p. 24, p. 19, pp. 46–47; 500 words: pp. 6–7, pp. 46–48, pp. 30–31, pp. 4–6, pp. 7–8. No chunk from page 13.</p>
+<ul>
+  <li>"Pull the plug" is an idiom and shares no words with the actual text ("cease", "unacceptable negative risk"), so the small embedding model didn't connect them and grabbed generic "AI system" chunks from p. 6.</li>
+  <li>BM25 wouldn't fix this, since there's no keyword overlap to match. Better fixes: LLM query rewriting / HyDE to turn casual phrasing into the document's language first, a stronger embedding model (bge/e5), or a re-ranker on the top 20.</li>
+</ul>
+</div>
+
+<h3>Failure 2: Q7 "What is the MAP function supposed to do?" (150 words)</h3>
+<div class="fail">
+<p>Source: page 29, "The MAP function establishes the context to frame risks related to an AI system." Retrieved, 150 words: p. 46, pp. 29–30, pp. 30–31, p. 30, p. 32. With 500-word chunks it was not a miss.</p>
+<ul>
+  <li>"MAP" shows up all over the document, so the embedding model couldn't tell the main definition on p. 29 apart from chunks about GOVERN or later MAP sections.</li>
+  <li>The flip side of Q10: hybrid search with BM25 would help here, by boosting exact matches like "MAP function" together with defining words. A re-ranker would also help pick out the actual definition.</li>
+</ul>
+</div>
+
+<h3>BM25 and re-rankers</h3>
+<ul>
+  <li><b>BM25</b> scores chunks by exact word matches, giving extra weight to rare/specific terms and penalising very long chunks. Embeddings are good at general meaning but get fuzzy on exact names, codes and acronyms (like MAP). Combining both is hybrid search: meaning plus exact matches.</li>
+  <li><b>Re-ranker:</b> two stages. First, fast search pulls a wider shortlist (the top 20–50 chunks); then a cross-encoder reads the question and each chunk together and scores how well that chunk actually answers the question. This is much more accurate than comparing two separate vectors, but slower, so it only runs on the shortlist.</li>
+</ul>
+
+<!-- ============================== TASK 3 ============================== -->
+<h2>Task 3 — Local inference and quantisation (Ollama)</h2>
+<p><b>Hardware:</b> 11th Gen Intel Core i5-11320H @ 3.20 GHz (4 cores / 8 logical processors), 15.79 GB RAM, Intel Iris Xe (no NVIDIA GPU), Windows 11, Ollama 0.40.16. <b>CPU only:</b> <code>size_vram</code> = 0 for both models. <b>Setup:</b> <code>qwen2.5:1.5b-instruct-fp16</code> vs <code>qwen2.5:1.5b-instruct-q4_K_M</code>, 10 fixed prompts through <code>/api/generate</code> (temperature 0, seed 42, <code>num_predict</code> 256) after one warm-up; speed = <code>eval_count / eval_duration</code>; memory from <code>/api/ps</code>.</p>
+<table class="fit">
+  <tr><th>Metric</th><th class="n">fp16</th><th class="n">q4_K_M</th></tr>
+  <tr><td>Generation speed (tokens/s)</td><td class="n">12.3</td><td class="n">28.1</td></tr>
+  <tr><td>Prompt processing speed (tokens/s)</td><td class="n">139.9</td><td class="n">224.5</td></tr>
+  <tr><td>Total time, 10 prompts (s)</td><td class="n">77.6</td><td class="n">35.9</td></tr>
+  <tr><td>Output tokens, 10 prompts</td><td class="n">886</td><td class="n">912</td></tr>
+  <tr><td>Memory: size (GB)</td><td class="n">3.28</td><td class="n">1.17</td></tr>
+  <tr><td>Memory: size_vram (GB)</td><td class="n">0.00</td><td class="n">0.00</td></tr>
+</table>
+<p>q4_K_M vs fp16: memory 3.28 → 1.17 GB (2.8× smaller), generation 12.3 → 28.1 tokens/s (2.3× faster). Cut off at the 256-token limit: fp16 on prompts 2 and 3, q4_K_M on prompt 2.</p>
+
+<h3>Quality observations</h3>
+<ul>
+  <li>q4_K_M matched fp16 on reasoning (both $0.05), coding, summarisation, maths (408, then 51) and classification (identical answers).</li>
+  <li>The biggest drop was the creative poem: fp16 kept the 4-line limit, but q4_K_M wrote 12 lines with repeated lines.</li>
+  <li>Small slips in q4_K_M: the JSON age as the string "29" instead of the number 29; the English word "meeting" in the French translation; a longer, padded factual answer (103 vs 51 tokens).</li>
+  <li>q4_K_M was sometimes cleaner: for coding it gave just the code (176 tokens), while fp16 added an explanation and got cut off at 256. On the under-10-words tips, fp16 wrote 18/16/16 words and q4_K_M 5/5/10 (closer, but the third still isn't under 10).</li>
+  <li>Shared 1.5B limits: both said Canberra but gave a wrong reason ("centre of the country"), both got cut off on the bat-and-ball problem, and both made grammar mistakes in the French.</li>
+</ul>
+
+<h3>KV cache</h3>
+<ul>
+  <li>When an LLM generates text one token at a time, attention has to look back at every previous token. The KV cache stores the Key and Value tensors for all the tokens already processed, so the model doesn't recompute them for every new token. It trades extra memory for much faster generation.</li>
+  <li>It grows with context length and with the number of users at the same time. That's what limits serving.</li>
+</ul>
+
+<h3>Quantisation</h3>
+<ul>
+  <li>Weights are normally 16-bit floats (2 bytes per parameter). Shrinking them to 8-bit or 4-bit cuts memory by roughly 2x to 4x. My run: memory 3.28 → 1.17 GB (2.8x), generation 12.3 → 28.1 tok/s (2.3x).</li>
+  <li>It's 2.8x and not 4x because q4_K_M uses ~4.5–5 bits per weight and keeps some parts at higher precision, and the measured size also includes the KV cache and buffers.</li>
+  <li>It's faster because each new token means reading all the weights from RAM (this ran on CPU), and smaller weights = less data to read per token. Usually there is only a small hit to quality.</li>
+</ul>
+
+<h3>Serving plan: 20 concurrent users on one 24 GB GPU</h3>
+<p><b>Assumptions:</b> Qwen2.5-7B-Instruct (28 layers, 4 KV heads with GQA, head_dim 128, 7.6B parameters; from the model's <code>config.json</code> and weight files on Hugging Face), up to 4,096 tokens of context per user, ~2 GB overhead, served with vLLM (continuous batching + PagedAttention).</p>
+<table>
+  <tr><th></th><th>fp16</th><th>4-bit AWQ</th></tr>
+  <tr><td>Weights</td><td>7.6B × 2 bytes ≈ 15.2 GB</td><td>≈ 5.6 GB</td></tr>
+  <tr><td>KV cache per token</td><td colspan="2">2 × 28 × 4 × 128 × 2 bytes = 57,344 bytes ≈ 56 KB</td></tr>
+  <tr><td>KV cache per user / 20 users</td><td colspan="2">4,096 × 56 KB ≈ 0.23 GB per user; 20 users ≈ 4.7 GB</td></tr>
+  <tr><td>Total</td><td>15.2 + 4.7 + ~2 ≈ 22 GB: tight (just above 0.9 × 24 = 21.6 GB)</td><td>5.6 + 4.7 + 2 ≈ 12 GB: lots of room</td></tr>
+</table>
+<ul>
+  <li><b>Plan:</b> 4-bit weights + vLLM, with <code>max_num_seqs=20</code>, <code>max_model_len=4096</code>, <code>gpu_memory_utilization=0.9</code>. Batching works because each decode step reads the weights once for all 20 users, so 20 users cost about the same per step as 1. PagedAttention stores the KV cache in small blocks, so no memory is wasted reserving the max length for every user.</li>
+  <li><b>Limit:</b> if every user wanted 32K context, the KV cache alone would be 20 × 32K × 56 KB ≈ 37.6 GB, which doesn't fit. Fixes: cap the context length, use an fp8 KV cache (half the size), or queue extra users.</li>
+</ul>
+
+</body>
+</html>

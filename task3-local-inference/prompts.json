@@ -1,0 +1,52 @@
+[
+  {
+    "id": 1,
+    "category": "factual",
+    "prompt": "What is the capital of Australia, and why was it chosen instead of Sydney or Melbourne? Answer in 2-3 sentences."
+  },
+  {
+    "id": 2,
+    "category": "reasoning",
+    "prompt": "A bat and a ball cost $1.10 in total. The bat costs $1.00 more than the ball. How much does the ball cost? Explain your reasoning step by step."
+  },
+  {
+    "id": 3,
+    "category": "coding",
+    "prompt": "Write a Python function is_palindrome(s) that returns True if s is a palindrome, ignoring case, spaces and punctuation. Include two example calls."
+  },
+  {
+    "id": 4,
+    "category": "summarisation",
+    "prompt": "Summarise the following paragraph in one sentence:\n\nPhotosynthesis is the process by which green plants, algae and some bacteria turn light energy into chemical energy. Using sunlight, they combine carbon dioxide from the air with water from the soil to make glucose, a sugar that stores energy and is used to build the plant's tissues. Oxygen is released as a by-product, which is why photosynthesis is essential for most life on Earth. The process takes place mainly in the chloroplasts of leaf cells, where the green pigment chlorophyll absorbs red and blue light."
+  },
+  {
+    "id": 5,
+    "category": "json_output",
+    "prompt": "Extract the information from this sentence and return ONLY a JSON object with the keys \"name\", \"age\", \"city\" and \"skills\" (a list of strings): \"Meera is a 29-year-old data engineer from Pune who works with Python, SQL and Spark.\""
+  },
+  {
+    "id": 6,
+    "category": "creative",
+    "prompt": "Write a four-line rhyming poem about a lighthouse keeper who has never seen the sea in daylight."
+  },
+  {
+    "id": 7,
+    "category": "maths",
+    "prompt": "Compute 17 x 24, then divide the result by 8. Show each step and give the final answer on its own line."
+  },
+  {
+    "id": 8,
+    "category": "translation",
+    "prompt": "Translate into French: \"The meeting has been moved to Thursday afternoon because the client is travelling.\""
+  },
+  {
+    "id": 9,
+    "category": "classification",
+    "prompt": "Classify the sentiment of each review as positive, negative or mixed. Answer with one line per review in the form 'number: label'.\n1. The battery lasts all day and the screen is gorgeous.\n2. It arrived broken and support never replied.\n3. Great camera, but it overheats when I play games."
+  },
+  {
+    "id": 10,
+    "category": "instruction_following",
+    "prompt": "Give exactly three tips for sleeping better. Use a numbered list, keep each tip under 10 words, and write nothing else."
+  }
+]

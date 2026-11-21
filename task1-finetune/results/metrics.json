@@ -1,0 +1,59 @@
+{
+  "model": "Qwen/Qwen2.5-0.5B-Instruct",
+  "base": {
+    "n_examples": 60,
+    "valid_json_rate": 1.0,
+    "exact_match": 0.0,
+    "exact_match_seen_templates": 0.0,
+    "exact_match_unseen_templates": 0.0,
+    "field_accuracy": {
+      "action": 0.85,
+      "title": 0.05,
+      "date": 0.3833,
+      "time": 0.7333,
+      "duration_minutes": 0.9,
+      "attendees": 0.4833
+    }
+  },
+  "finetuned": {
+    "n_examples": 60,
+    "valid_json_rate": 1.0,
+    "exact_match": 0.8667,
+    "exact_match_seen_templates": 0.9667,
+    "exact_match_unseen_templates": 0.7667,
+    "field_accuracy": {
+      "action": 0.95,
+      "title": 0.9667,
+      "date": 0.95,
+      "time": 1.0,
+      "duration_minutes": 0.9833,
+      "attendees": 0.9833
+    }
+  },
+  "training": {
+    "train_examples": 400,
+    "epochs": 3,
+    "learning_rate": 0.0002,
+    "batch_size": 8,
+    "optimizer_steps": 150,
+    "lora": {
+      "r": 16,
+      "alpha": 32,
+      "dropout": 0.05,
+      "target_modules": [
+        "k_proj",
+        "o_proj",
+        "q_proj",
+        "v_proj"
+      ]
+    },
+    "trainable_params": 2162688,
+    "total_params": 496195456,
+    "average_train_loss": 0.015,
+    "last_logged_loss": 0.0007,
+    "train_time_seconds": 59.0,
+    "peak_gpu_memory_allocated_gb": 6.96,
+    "peak_gpu_memory_reserved_gb": 14.04,
+    "gpu": "Tesla T4"
+  }
+}
